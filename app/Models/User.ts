@@ -9,6 +9,7 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Booking from 'App/Models/Booking'
 import Venue from 'App/Models/Venue'
+import UserHasBooking from './UserHasBooking'
 
 export default class Users extends BaseModel {
   @column({ isPrimary: true })
@@ -29,6 +30,9 @@ export default class Users extends BaseModel {
   @column()
   public rememberMeToken?: string
 
+  @column()
+  public isVerified: boolean
+
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
@@ -41,6 +45,11 @@ export default class Users extends BaseModel {
       users.password = await Hash.make(users.password)
     }
   }
+
+  @hasMany(() => UserHasBooking, {
+    foreignKey: 'user_id'
+  })
+  public user_has_bookings: HasMany<typeof UserHasBooking>
 
   @hasMany(() => Booking, {
     foreignKey: 'user_id_booking'

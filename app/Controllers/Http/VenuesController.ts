@@ -49,17 +49,30 @@ export default class VenuesController {
     return response.ok({message: 'Venue has been Deleted!'})
   }
 
-  public async booking({request, response}: HttpContextContract) {
+  public async booking({request, response, auth}: HttpContextContract) {
     try {
       let data = await request.validate(BookingValidator)
+      let user = auth.user
       let field_data = await Field.findOrFail(data.field_id)
       let vid = field_data.venue_id
 
-      if (request.param('id')!=vid) {
-        return response.notFound({message: `field dengan ID ${data.field_id} tidak terdapat pada venue tersebut`}) 
+      if (request.param('id')!=vid){
+          return response.notFound({message: `field dengan ID ${data.field_id} tidak terdapat pada venue tersebut`})
       }
-    } catch (error) {
-      
+      let data_booking= await user?.related('bookings').create({
+          play_date_start: request.body().play_date_start,
+          play_date_end: request.body().play_date_end,
+          field_id: request.body().field_id
+      })
+
+      await user?.related('user_has_bookings').create({
+          user_id: user.id,
+          booking_id: data_booking?.id
+      })
+      response.created({message: 'booking berhasil dilakukan'})
+    } catch (err){
+      console.log(err)
+        response.badRequest(err)
     }
   }
 }

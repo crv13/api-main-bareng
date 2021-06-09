@@ -10,6 +10,7 @@
 */
 
 import Server from '@ioc:Adonis/Core/Server'
+import CheckVerify from 'App/Middleware/CheckVerify'
 
 /*
 |--------------------------------------------------------------------------
@@ -41,5 +42,8 @@ Server.middleware.register([
 |
 */
 Server.middleware.registerNamed({
-  auth: () => import('App/Middleware/Auth')
+  auth: () => import('App/Middleware/Auth'),
+  CheckVerify: () => import('App/Middleware/CheckVerify'),
+  CheckOwner: () => import('App/Middleware/CheckOwner'),
+  CheckUser: () => import('App/Middleware/CheckUser'),
 })
