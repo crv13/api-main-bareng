@@ -4,11 +4,52 @@ import User from 'App/Models/User'
 import UserHasBooking from 'App/Models/UserHasBooking'
 
 export default class BookingsController {
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/bookings:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Bookings
+     *              summary: show all booking data for role user
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async index({response}: HttpContextContract) {
     let data = await Database.from('bookings').select('*')
     response.ok({message: 'ok', data})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/bookings/{id}:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Bookings
+     *              description: Showing list of bookings which `bookings.id` is equal to `id` in query
+     *              summary: show details of related booking for role user
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of booking
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async show({response, request}: HttpContextContract) {
     let data = await Database.from('bookings').select('*').where({id: request.param('id')
     })
@@ -22,6 +63,29 @@ export default class BookingsController {
     response.ok({message: 'loaded', data})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/bookings/{id}/join:
+     *          put:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Bookings
+     *              summary: join on another existed booking for role user
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of booking
+     *              responses:
+     *                  401:
+     *                      description: 'access denied'
+     *                  201:
+     *                      description: 'joined'
+     */
   public async join({request, response, auth}: HttpContextContract) {
     let userAuth = auth.user
 
@@ -33,6 +97,31 @@ export default class BookingsController {
     response.created({message: 'berhasil join'})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/bookings/{id}/unjoin:
+     *          put:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Bookings
+     *              summary: unjoin existed joined booking for role user
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of booking
+     *              responses:
+     *                  401:
+     *                      description: 'access denied'
+     *                  200:
+     *                      description: 'unjoined'
+     *                  404:
+     *                      description: 'user not joined on related booking'
+     */
   public async unjoin({response, request, auth}:HttpContextContract){
     let userauth = auth.user
     try{
@@ -49,6 +138,23 @@ export default class BookingsController {
     }
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/schedule:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Bookings
+     *              summary: show all joined booking data of currently login user for role user
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async schedule({ response}:HttpContextContract){
     let list_id_on = await Database.from('api_tokens').distinct('user_id')
     let users = await User.query().preload('user_has_bookings')

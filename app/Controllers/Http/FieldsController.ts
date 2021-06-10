@@ -5,6 +5,29 @@ import Venue from 'App/Models/Venue'
 import FieldValidator from 'App/Validators/FieldValidator'
 
 export default class FieldsController {
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{venue_id}/fields:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Fields
+     *              summary: show all fields where `venues.id = {venue_id}` for all user owner
+     *              parameters:
+     *                - in: path
+     *                  name: venue_id
+     *                  type: uint
+     *                  required: true
+     *                  description: containing id in database venues
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async index({response, request}: HttpContextContract) {
     let data = await Database.from('fields').select('*').where({
       venue_id: request.param('venue_id')
@@ -12,6 +35,37 @@ export default class FieldsController {
     response.ok({message: 'Field has been Loaded!', data})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{venue_id}/fields:
+     *          post:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Fields
+     *              summary: create new field for the owner of the venue
+     *              parameters:
+     *                - in: path
+     *                  name: venue_id
+     *                  type: uint
+     *                  required: true
+     *                  description: containing id in database venues
+     *              requestBody:
+     *                  required: true
+     *                  content:
+     *                      application/x-www-form-urlencoded:
+     *                          schema:
+     *                              $ref: '#definitions/Field'
+     *              responses:
+     *                  401:
+     *                      description: 'access denied'
+     *                  201:
+     *                      description: 'success'
+     *                  400:
+     *                      description: 'bad request body value'
+     */
   public async store({request, response, params, auth}: HttpContextContract) {
     try {
       const venue = await Venue.findOrFail(params.venue_id)
@@ -32,6 +86,35 @@ export default class FieldsController {
     }   
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{venue_id}/fields/{id}:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Fields
+     *              description: Showing list of fields which `venues.id` is equal to `venues_id` and `fields.id` equal to `id` in query
+     *              summary: show details of fields for all users owner
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of field
+     *                  - in: path
+     *                    name: venue_id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of venue
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async show({response, request}: HttpContextContract) {
     let data = await Database.from('fields').select('*').where({
       id: request.param('id'),
@@ -40,6 +123,42 @@ export default class FieldsController {
     response.ok({message: 'Fields has been Loaded!', data})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{venue_id}/fields/{id}:
+     *          put:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Fields
+     *              summary: update fields's data for role owner if the user is the owner of the venue
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of field
+     *                  - in: path
+     *                    name: venue_id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of venue
+     *              requestBody:
+     *                  required: true
+     *                  content:
+     *                      application/x-www-form-urlencoded:
+     *                          schema:
+     *                              $ref: '#definitions/Fields'
+     *              responses:
+     *                  401:
+     *                      description: 'access denied'
+     *                  200:
+     *                      description: 'success'
+     *                  400:
+     *                      description: 'bad request body value'
+     */
   public async update({request, response, auth}: HttpContextContract) {
     try {
       let data = await request.validate(FieldValidator)

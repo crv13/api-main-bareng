@@ -11,6 +11,28 @@ import Booking from 'App/Models/Booking'
 import Venue from 'App/Models/Venue'
 import UserHasBooking from './UserHasBooking'
 
+/**
+ * @swagger
+ * definitions:
+ *    User:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *        email:
+ *          type: string
+ *          format: email
+ *        password:
+ *          type: string
+ *        role:
+ *          type: string
+ *      required:
+ *        -name
+ *        -email
+ *        -password
+ *        -role
+ */
+
 export default class Users extends BaseModel {
   @column({ isPrimary: true })
   public id: number

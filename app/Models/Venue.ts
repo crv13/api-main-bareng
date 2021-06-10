@@ -2,6 +2,23 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
 import Field from './Field'
 
+/**
+ * @swagger
+ * definitions:
+ *    Venue:
+ *      type: object
+ *      properties:
+ *        name:
+ *          type: string
+ *        phone:
+ *          type: string
+ *        address:
+ *          type: string
+ *      required:
+ *        -name
+ *        -phone
+ *        -address
+ */
 export default class Venue extends BaseModel {
   @column({ isPrimary: true })
   public id: number

@@ -5,11 +5,53 @@ import BookingValidator from 'App/Validators/BookingValidator'
 import VenueValidator from 'App/Validators/VenueValidator'
 
 export default class VenuesController {
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Venues
+     *              summary: show all venues data for owner
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async index({response}: HttpContextContract) {
     const venues = await Venue.query().preload('fields')
     return response.status(200).json({ message: 'Succes get Venues', data: venues})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues:
+     *          post:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Venues
+     *              summary: create new venue for owner
+     *              requestBody:
+     *                  required: true
+     *                  content:
+     *                      application/x-www-form-urlencoded:
+     *                          schema:
+     *                              $ref: '#definitions/Venue'
+     *              responses:
+     *                  401:
+     *                      description: 'access denied'
+     *                  201:
+     *                      description: 'success'
+     *                  400:
+     *                      description: 'bad request body value'
+     */
   public async store({request, response, auth}: HttpContextContract) {
     try {
       const data = await request.validate(VenueValidator)
@@ -23,11 +65,72 @@ export default class VenuesController {
     }
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{id}:
+     *          get:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Venues
+     *              description: Showing list of bookings which `venues.id` is equal to `id` in query
+     *              summary: show details of schedule in related venue for owner
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of venue
+     *                  - in: query
+     *                    name: play_date_start
+     *                    type: string
+     *                    format: date
+     *                    required: false
+     *                    description: playing date of certain data
+     *              responses:
+     *                  200:
+     *                      description: 'success'
+     *                  401:
+     *                      description: 'access denied'
+     */
   public async show({response, params}: HttpContextContract) {
     const venue = await Venue.query().preload('fields').where('id', params.id).first()
     return response.ok({message: 'Success get Venue with Id', data: venue})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{id}:
+     *          put:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Venues
+     *              summary: update venue's data for role owner if the user is the owner of the venue
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of venue
+     *              requestBody:
+     *                  required: true
+     *                  content:
+     *                      application/x-www-form-urlencoded:
+     *                          schema:
+     *                              $ref: '#definitions/Venue'
+     *              responses:
+     *                  401:
+     *                      description: 'access denied'
+     *                  200:
+     *                      description: 'success'
+     *                  400:
+     *                      description: 'bad request body value'
+     */
   public async update({request, response, params, auth}: HttpContextContract) {
     let venue = await Venue.findOrFail(params.id)
     
@@ -49,6 +152,39 @@ export default class VenuesController {
     return response.ok({message: 'Venue has been Deleted!'})
   }
 
+  /**
+     * 
+     * @swagger
+     * paths:
+     *      /api/v1/venues/{id}/bookings:
+     *          post:
+     *              security:
+     *                  - bearerAuth: []
+     *              tags:
+     *                  - Venues
+     *              summary: booking venue for users with role user
+     *              parameters:
+     *                  - in: path
+     *                    name: id
+     *                    type: uint
+     *                    required: true
+     *                    description: ID of venue
+     *              requestBody:
+     *                  required: true
+     *                  content:
+     *                      application/x-www-form-urlencoded:
+     *                          schema:
+     *                              $ref: '#definitions/Booking'
+     *              responses:
+     *                  404:
+     *                      description: 'field_id not found'
+     *                  401:
+     *                      description: 'access denied'
+     *                  201:
+     *                      description: 'new booking added'
+     *                  400:
+     *                      description: 'bad request body value'
+     */
   public async booking({request, response, auth}: HttpContextContract) {
     try {
       let data = await request.validate(BookingValidator)
